@@ -63,7 +63,7 @@ stages:
             inputs:
               command: "custom"
               workingDir: "src"
-              customCommand: "npm run build"
+              customCommand: "run build"
 
           - task: AzureCLI@2
             inputs:
