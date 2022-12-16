@@ -1,0 +1,43 @@
+# Run On PRs against all branches
+pr:
+  branches:
+    include:
+      - "*"
+# Run on changes to main or dev or release branches
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  bicepRegistryServiceConnection: "Bicep registry"
+  azureServiceConnection: "Q42 Development"
+  location: "WestEurope"
+
+  isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+
+stages:
+  - stage: Build
+    jobs:
+      - template: "azure-pipelines/infra-build.yml"
+        parameters:
+          workingDir: IaC-Bicep
+          sourceFile: "main.bicep"
+          artifactName: "Nuxt.Infra"
+
+  - stage: Deploy
+    displayName: Deploy env:Test
+    condition: and( succeeded() , eq(variables.isMainBranch, true) ) )
+    dependsOn:
+      - Build
+    jobs:
+      - template: "azure-pipelines/infra-deploy.yml"
+        parameters:
+          workingDir: $(Pipeline.Workspace)/Nuxt.Infra/IaC-Bicep
+          environment: "main"
+          variableGroupName: "main"
