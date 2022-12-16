@@ -1,0 +1,35 @@
+parameters:
+- name : workingDir
+  type: string  
+
+- name: sourceFile
+  type: string
+
+- name: artifactName
+  type: string
+
+
+jobs:
+  - job: Build
+    displayName: 'Build Bicep templates'
+
+    steps:
+      - task: AzureCLI@2
+        displayName: 'Build templates'
+        inputs:
+          azureSubscription: $(azureServiceConnection)
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'az bicep build --file ${{ parameters.sourceFile }}'
+          workingDirectory: ${{ parameters.workingDir }}
+
+      - task: CopyFiles@2
+        inputs:
+          Contents: |
+            ${{ parameters.workingDir }}/**
+            !${{ parameters.workingDir }}/*.md
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        displayName: 'Publish templates'
+        artifact: ${{ parameters.artifactName}}
