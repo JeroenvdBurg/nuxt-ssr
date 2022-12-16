@@ -32,7 +32,7 @@ stages:
 
   - stage: Deploy
     displayName: Deploy env:Test
-    condition: and( succeeded() , eq(variables.isMainBranch, true) ) )
+    condition: and( succeeded() , eq(variables.isMainBranch, true) )
     dependsOn:
       - Build
     jobs:
