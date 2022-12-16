@@ -48,6 +48,8 @@ stages:
     displayName: Build App
     jobs:
       - job: Build
+        variables:
+          - group: main
         steps:
           - task: UseNode@1
             inputs:
@@ -76,7 +78,6 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                export SWA_CLI_DEPLOYMENT_TOKEN=e1c4f03be2b0c40edd7c4f780f58bf386f526f85c6cc6c8da1d743a6fb47b4092-b0236354-6647-4998-a7ca-d2acbae166d0003165990           
                 npm install -g @azure/static-web-apps-cli
-                swa deploy .output/public --api-location .output/server
+                swa deploy .output/public --api-location .output/server --deployment-token $(deployment-token)
               workingDirectory: $(appdir)
