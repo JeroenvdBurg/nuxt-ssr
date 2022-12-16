@@ -66,8 +66,7 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                NITRO_PRESET=azure
-                npm run build
+                NITRO_PRESET=azure npm run build
               workingDirectory: $(appdir)
 
           - task: AzureCLI@2
