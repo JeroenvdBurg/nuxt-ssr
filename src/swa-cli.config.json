@@ -1,7 +1,7 @@
 {
   "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
   "configurations": {
-    "nuxt-srr": {
+    " ": {
       "appLocation": ".",
       "apiLocation": ".output/server",
       "outputLocation": ".output/nuxt",
