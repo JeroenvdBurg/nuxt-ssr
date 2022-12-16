@@ -17,7 +17,7 @@ pool:
 variables:
   bicepRegistryServiceConnection: "Bicep registry"
   azureServiceConnection: "Q42 Development"
-  location: "WestEurope"
+  location: "westeurope"
 
   isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
@@ -31,7 +31,7 @@ stages:
           artifactName: "Nuxt.Infra"
 
   - stage: Deploy
-    displayName: Deploy env:Test
+    displayName: Deploy
     condition: and( succeeded() , eq(variables.isMainBranch, true) )
     dependsOn:
       - Build
