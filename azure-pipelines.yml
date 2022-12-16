@@ -22,7 +22,8 @@ variables:
   isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
 stages:
-  - stage: Build
+  - stage: BuildInfra
+    displayName: Build Infra
     jobs:
       - template: "azure-pipelines/infra-build.yml"
         parameters:
@@ -30,14 +31,34 @@ stages:
           sourceFile: "main.bicep"
           artifactName: "Nuxt.Infra"
 
-  - stage: Deploy
-    displayName: Deploy
+  - stage: DeployInfra
+    displayName: Deploy Infra
     condition: and( succeeded() , eq(variables.isMainBranch, true) )
     dependsOn:
-      - Build
+      - BuildInfra
     jobs:
       - template: "azure-pipelines/infra-deploy.yml"
         parameters:
           workingDir: $(Pipeline.Workspace)/Nuxt.Infra/IaC-Bicep
           environment: "main"
           variableGroupName: "main"
+
+  - stage: BuildApp
+    displayName: Build App
+    jobs:
+      - job: Build
+        steps:
+          - task: UseNode@1
+            inputs:
+              version: "18.x"
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                npm install -g @azure/static-web-apps-cli
+                NITRO_PRESET=azure
+                npm run build
+              workingDirectory: src
