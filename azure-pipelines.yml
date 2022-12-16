@@ -18,6 +18,7 @@ variables:
   bicepRegistryServiceConnection: "Bicep registry"
   azureServiceConnection: "Q42 Development"
   location: "westeurope"
+  appdir: "src"
 
   isMainBranch: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
 
@@ -56,22 +57,27 @@ stages:
             displayName: "npm install"
             inputs:
               command: "install"
-              workingDir: "src"
-
-          - task: Npm@1
-            displayName: "npm build"
-            inputs:
-              command: "custom"
-              workingDir: "src"
-              customCommand: "run build"
+              workingDir: $(appdir)
 
           - task: AzureCLI@2
+            displayName: "npm run build"
             inputs:
               azureSubscription: $(azureServiceConnection)
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                export SWA_CLI_DEPLOYMENT_TOKEN=e1c4f03be2b0c40edd7c4f780f58bf386f526f85c6cc6c8da1d743a6fb47b4092-b0236354-6647-4998-a7ca-d2acbae166d0003165990
+                NITRO_PRESET=azure
+                npm run build
+              workingDirectory: $(appdir)
+
+          - task: AzureCLI@2
+            displayName: "deploy Static Webapp"
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                export SWA_CLI_DEPLOYMENT_TOKEN=e1c4f03be2b0c40edd7c4f780f58bf386f526f85c6cc6c8da1d743a6fb47b4092-b0236354-6647-4998-a7ca-d2acbae166d0003165990           
                 npm install -g @azure/static-web-apps-cli
                 swa deploy .output/public --api-location .output/server
-              workingDirectory: src
+              workingDirectory: $(appdir)
